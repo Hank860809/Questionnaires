@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Answer extends Model
 {
-    protected $table      = 'utcss_answers';
+    protected $table      = 'utt_answers';
     protected $primaryKey = 'answer_id';
 
     protected $fillable = [

@@ -1,5 +1,8 @@
 <?php
 
+use App\Exports\QuestionnaireExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -12,10 +15,14 @@
 */
 
 Route::get('/', function () {
-    return view('index');
+    return view('welcome');
 });
 Route::view('/quest/thankyou','thankyou')->name('thankyou');
-Route::get('/quest/{Question_id}', 'FormController@index')->name('form.index');
+// Route::get('/quest/{Question_id}', 'FormController@index')->name('form.index');
+Route::get('{Sr_id}/{Question_id}', 'FormController@index');
 Route::post('/quest/ans', 'FormController@store')->name('form.store');
-Route::get('/{Question_id}', 'FormController@index')->name('form.GetQuestion');
+
+Route::get('/ans/getxlsx' , function(){
+    return Excel::download(new QuestionnaireExport,'Ans.xlsx');
+});
 

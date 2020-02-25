@@ -11,12 +11,13 @@ class Option extends Model
 
     public function GetOption($Question_id){
         $Option = Option::select()
-                        ->join('utt_services_to_option','utt_option.option_id','=','utt_services_to_option.option_id')
-                        ->join('utt_services','utt_services_to_option.service_id','=','utt_services.service_id')
-                        ->join('utt_survey_to_service','utt_services.service_id','=','utt_survey_to_service.service_id')
-                        ->join('utcss_survey_subject','utt_survey_to_service.survey_subject_id','=','utcss_survey_subject.survey_subject_id')
-                        ->join('utt_question_to_survey','utcss_survey_subject.survey_subject_id','=','utt_question_to_survey.survey_subject_id')
-                        ->join('utt_questionnaires','utt_questionnaires.questionnaire_id','=','utt_question_to_survey.questionnaire_id')
+                        ->join('utt_topics_to_option','utt_option.option_id','=','utt_topics_to_option.option_id')
+                        ->join('utt_topics','utt_topics_to_option.topic_id','=','utt_topics.topic_id')
+                        ->join('utt_category_to_topic','utt_topics.topic_id','=','utt_category_to_topic.topic_id')
+                        ->join('utt_category','utt_category_to_topic.category_id','=','utt_category.category_id')
+                        ->join('utt_question_to_category','utt_category.category_id','=','utt_question_to_category.category_id')
+                        ->join('utt_questionnaires','utt_questionnaires.questionnaire_id','=','utt_question_to_category.questionnaire_id')
+                        ->orderBy('utt_topics_to_option.id', 'asc')
                         ->where('utt_questionnaires.questionnaire_id' , '=' ,"$Question_id")
                         ->get();
         return $Option;

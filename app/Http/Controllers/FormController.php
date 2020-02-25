@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Model\Questionnaires;
-use App\Model\Survey;
-use App\Model\Services;
+use App\Model\Category;
+use App\Model\Topics;
 use App\Model\Option;
 use App\Model\Answer;
+use App\Model\ServiceInfo;
 
 class FormController extends Controller
 {
@@ -18,54 +19,38 @@ class FormController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-
-    // public function GetQuestion($Question_id){
-
-    //     $Questionnaires = new Questionnaires;
-    //     $Survey = new Survey;
-    //     $Services = new Services;
-    //     $Option = new Option;
-
-    //     // $QuestionTitle 取出
-
-    //     $QuestionTitle = $Questionnaires->GetQuestionTitle($Question_id);
-    //     $QuestionDate = $Questionnaires->GetQuestionDate($Question_id);
-    //     // dd($QuestionDate);
-
-    //     $GetSurvey = $Survey->GetSurvey($Question_id);
-    //     $SurveyData = $Survey->GetSurveyData($Question_id);
-
-    //     $ServicesData = $Services->GetServices($Question_id);
-
-    //     $OptionData = $Option->GetOption($Question_id);
-
-    //     // dd($OptionData);
-    //     // dd($QuestionSurveys[0]['survey_subject']);
-    //     return view('index' , compact('QuestionDate','QuestionTitle','SurveyData','ServicesData','OptionData'));
-    // }
-
-    public function index($Question_id)
+    public function index($Sr_id,$Question_id)
     {
         $Questionnaires = new Questionnaires;
-        $Survey = new Survey;
-        $Services = new Services;
+        $Category = new Category;
+        $topics = new topics;
         $Option = new Option;
+        $ServiceInfo = new ServiceInfo;
 
-        // $QuestionTitle 取出
+        $ServiceDate = $ServiceInfo->GetServiceDate($Sr_id);
+        $ReplyStatus = $ServiceInfo->GetReplyStatus($Sr_id);
+        $ReplyDate = $ServiceInfo->GetReplyDate($Sr_id);
+        $ServiceInfo = $ServiceInfo->GetServiceInfo($Sr_id);
 
         $QuestionTitle = $Questionnaires->GetQuestionTitle($Question_id);
         $QuestionDate = $Questionnaires->GetQuestionDate($Question_id);
 
-        $GetSurvey = $Survey->GetSurvey($Question_id);
-        $SurveyData = $Survey->GetSurveyData($Question_id);
+        if($QuestionTitle == null || $ReplyStatus == null){
+            return view('error');
+        }
+        if($ReplyStatus == 'Y'){
+            return view('thankyou',compact('ReplyStatus','ReplyDate'));
+        }
 
-        $ServicesData = $Services->GetServices($Question_id);
+        $GetCategory = $Category->GetCategory($Question_id);
+        $CategoryData = $Category->GetCategoryData($Question_id);
+
+        $topicsData = $topics->GetTopics($Question_id);
 
         $OptionData = $Option->GetOption($Question_id);
 
-        // dd($OptionData);
-        // dd($QuestionSurveys[0]['survey_subject']);
-        return view('index' , compact('Question_id','QuestionDate','QuestionTitle','SurveyData','ServicesData','OptionData'));
+
+        return view('index' , compact('ServiceInfo','ServiceDate','Question_id','QuestionDate','QuestionTitle','CategoryData','topicsData','OptionData'));
     }
 
     /**
@@ -89,17 +74,19 @@ class FormController extends Controller
         $request = collect($request->all());
         $Ans = $request['Ans'];
         $Count_Ans = count($Ans);
-        // dd($Ans);
         $Option = new Option;
         // $OptionName = $Option->GetOptionName($Ans[1]['option_id']);
-        // dd($OptionName[0]);
+        // dd($request);
         for($i=0;$i<$Count_Ans;$i++){
+
             $OptionName = $Option->GetOptionName($Ans[$i]['option_id']);
             $OptionValue = $Option->GetOptionValue($Ans[$i]['option_id']);
-            // dd($Ans);
+            // $Date = new DateTime();
+            // $Date= $Date->format('Y-m-d');
+
             if($Ans[$i]['option_id'] == '100'){
                 $ans = Answer::create([
-                    'service_id' => $Ans[$i]['service_id'],
+                    'topic_id' => $Ans[$i]['topic_id'],
                     'questionnaire_id' => $Ans[$i]['QuestionID'],
                     'start_date' => $Ans[$i]['start_date'],
                     'end_date' => $Ans[$i]['end_date'],
@@ -110,7 +97,7 @@ class FormController extends Controller
             }
             else{
                 $ans = Answer::create([
-                    'service_id' => $Ans[$i]['service_id'],
+                    'topic_id' => $Ans[$i]['topic_id'],
                     'questionnaire_id' => $Ans[$i]['QuestionID'],
                     'start_date' => $Ans[$i]['start_date'],
                     'end_date' => $Ans[$i]['end_date'],
